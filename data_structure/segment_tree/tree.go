@@ -4,10 +4,10 @@ package segment_tree
 
 //节点
 type Node struct {
-	L     int //左区间index
-	R     int //右区间index
-	Deep  int //深度
-	Index int //下标
+	L     int           //左区间index
+	R     int           //右区间index
+	Deep  int           //深度
+	Index int           //下标
 	Value []interface{} //数量跟Functions一致
 }
 
@@ -23,6 +23,7 @@ type SegmentTree struct {
 	Length    int        //长度 == len(Element[0])
 	Capacity  int        //容量
 }
+
 //构造线段树
 //functions 所有的函数
 //args 初始化的区间,可以为nil

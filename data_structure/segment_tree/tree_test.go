@@ -168,11 +168,11 @@ func TestMooc(t *testing.T) {
 		}
 		//list中最近20个数里最小的
 		min20 := func() int {
-			min:=math.MaxInt32
-			for i:=0;i<20;i++{
-				pos:=len(list)-1-i
-				if list[pos]<min{
-					min=list[pos]
+			min := math.MaxInt32
+			for i := 0; i < 20; i++ {
+				pos := len(list) - 1 - i
+				if list[pos] < min {
+					min = list[pos]
 				}
 			}
 			return min
@@ -197,7 +197,7 @@ func TestMooc(t *testing.T) {
 			}
 		}
 		//求区间最大值和最小值的线段树
-		st := New([]Function{maxFunc,minFunc}, nil)
+		st := New([]Function{maxFunc, minFunc}, nil)
 		//新增了19个数,共计20
 		for i := 0; i < 19; i++ {
 			tmp := mooc(last())
@@ -213,7 +213,7 @@ func TestMooc(t *testing.T) {
 			st.Append(tmp)
 			list = append(list, tmp)
 
-			want = []interface{}{max20(),min20()}
+			want = []interface{}{max20(), min20()}
 			t.Logf("push data:%d ,pop data:%d", tmp, list[len(list)-21])
 
 			if got := st.Query(st.Length-20, st.Length-1); !reflect.DeepEqual(got, want) {

@@ -8,39 +8,39 @@ import (
 	"os"
 )
 
-const(
-	SERVER_ENV="SERVER_ENV"
+const (
+	SERVER_ENV = "SERVER_ENV"
 )
 
-func serverEnv(env string)string{
-	if env==""{
-		env=SERVER_ENV
-	}
+func serverEnv(env string) string {
 	return os.Getenv(env)
 }
 
-func Read(obj interface{},args...interface{})error{
-	if len(args)!=1{
+func Read(obj interface{}, args ...interface{}) error {
+	env := SERVER_ENV
+	if len(args) >= 1 {
 		return errors.New("too much args")
+	} else if len(args) == 1 {
+		arg, ok := args[0].(string)
+		if !ok {
+			return errors.New("not a string")
+		}
+		env = arg
 	}
-	env,ok:=args[0].(string)
-	if !ok{
-		return errors.New("not a string")
-	}
-	return readConfig(obj,env)
+	return readConfig(obj, env)
 }
 
-func readConfig(obj interface{},env string) error {
+func readConfig(obj interface{}, env string) error {
 
-	e:=serverEnv(env)
+	e := serverEnv(env)
 	var configPath string
-	if e!=""{
-		configPath=e+".json"
-	}else{
-		configPath="local.json"
+	if e != "" {
+		configPath = e + ".json"
+	} else {
+		configPath = "local.json"
 	}
 
-	if err:=readConfigFile(obj,configPath);err!=nil{
+	if err := readConfigFile(obj, configPath); err != nil {
 		return err
 	}
 	ind, err := json.MarshalIndent(obj, "", "	")

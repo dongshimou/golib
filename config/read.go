@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/koding/multiconfig"
 	"os"
@@ -11,17 +12,27 @@ const(
 	SERVER_ENV="SERVER_ENV"
 )
 
-func serverEnv()string{
-	return os.Getenv(SERVER_ENV)
+func serverEnv(env string)string{
+	if env==""{
+		env=SERVER_ENV
+	}
+	return os.Getenv(env)
 }
 
-func Read(obj interface{})error{
-	return readConfig(obj)
+func Read(obj interface{},args...interface{})error{
+	if len(args)!=1{
+		return errors.New("too much args")
+	}
+	env,ok:=args[0].(string)
+	if !ok{
+		return errors.New("not a string")
+	}
+	return readConfig(obj,env)
 }
 
-func readConfig(obj interface{}) error {
+func readConfig(obj interface{},env string) error {
 
-	e:=serverEnv()
+	e:=serverEnv(env)
 	var configPath string
 	if e!=""{
 		configPath=e+".json"

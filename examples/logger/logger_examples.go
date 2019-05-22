@@ -10,6 +10,16 @@ func main(){
 	logger.New("test")
 
 
-	logger.Debug("fuck")
+	logger.Debug("debug")
+
+	logger.Error("error")
+
+	logger.Warn("warning")
+
+	logger.Info("info")
+
+	defer func() {
+		logger.Fatal()
+	}()
 
 }

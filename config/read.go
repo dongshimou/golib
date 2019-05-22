@@ -36,6 +36,7 @@ func readConfig(obj interface{}) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("-----------------------------")
 	fmt.Printf("Load Config from %s :\n", configPath)
 	fmt.Println(string(ind))
 	fmt.Println("-----------------------------")

@@ -1,1 +1,1 @@
-module golib
+module github.com/dongshimou/golib

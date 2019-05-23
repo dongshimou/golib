@@ -9,59 +9,54 @@ import (
 
 func TestAll(t *testing.T) {
 
-	q:= NewBQueue()
+	q := NewBQueue()
 
 	go func() {
-		for i:=0;i<100;i++{
+		for i := 0; i < 100; i++ {
 			go func() {
-				for j:=0;j<50;j++{
+				for j := 0; j < 50; j++ {
 					q.Pop()
 				}
 			}()
 		}
 	}()
 
-
 	go func() {
-
-		for i:=0;i<100;i++{
-
+		for i := 0; i < 100; i++ {
 			go func() {
-				for j:=0;j<100;j++{
-					q.Push(i*100+j)
+				for j := 0; j < 100; j++ {
+					q.Push(i*100 + j)
 				}
 			}()
 		}
 
 	}()
 
+	time.Sleep(time.Second * 5)
 
-
-	time.Sleep(time.Second*5)
-
-	want:=100*100/2
-	if q.Size()!=want{
-		t.Error("want size=",want,"get size=",q.Size())
-	}else{
-		t.Log("want size=",want,"get size=",q.Size())
+	want := 100 * 100 / 2
+	if q.Size() != want {
+		t.Error("want size=", want, "get size=", q.Size())
+	} else {
+		t.Log("want size=", want, "get size=", q.Size())
 	}
 }
 
-func TestBlockPop(t *testing.T){
+func TestBlockPop(t *testing.T) {
 
-	q:= NewBQueue()
+	q := NewBQueue()
 
-	ctx,cancel:=context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		for{
-			if len(ctx.Done())!=0{
+		for {
+			if len(ctx.Done()) != 0 {
 				return
 			}
-			log.Println(q.PopFront())
+			log.Println(q.PopAndFront())
 		}
 	}()
 
-	for i:=0;i<10;i++{
+	for i := 0; i < 10; i++ {
 		time.Sleep(time.Second)
 		q.Push(i)
 	}

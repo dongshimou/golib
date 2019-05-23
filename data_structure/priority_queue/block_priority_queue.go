@@ -5,57 +5,49 @@ import (
 )
 
 type BPriorityQueue struct {
-
 	PriorityQueue
-
-	cond  sync.Cond
-	mutex sync.Mutex
-	exist bool
+	cond sync.Cond
+	sync.Mutex
 }
 
-func NewBPriorityQueue()*BPriorityQueue{
-	bpq:=&BPriorityQueue{}
-	bpq.mutex=sync.Mutex{}
-	bpq.cond=sync.Cond{L:&bpq.mutex}
+func NewBPriorityQueue() *BPriorityQueue {
+	bpq := &BPriorityQueue{}
+	bpq.cond = sync.Cond{L: bpq}
 	return bpq
 }
 
-func (this *BPriorityQueue)Push(v interface{}){
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BPriorityQueue) Push(v interface{}) {
+	this.Lock()
+	defer this.Unlock()
 	this.push(v)
 	this.cond.Signal()
-	this.exist=true
 }
 
-func (this *BPriorityQueue)Pop()interface{}{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
-	for !this.exist{
+func (this *BPriorityQueue) Pop() interface{} {
+	this.Lock()
+	defer this.Unlock()
+	for this.empty() {
 		this.cond.Wait()
 	}
-	res:=this.top()
+	res := this.top()
 	this.pop()
-	if this.empty(){
-		this.exist=false
-	}
 	return res
 }
-func (this *BPriorityQueue)Top()interface{}{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
-	for !this.exist{
+func (this *BPriorityQueue) Top() interface{} {
+	this.Lock()
+	defer this.Unlock()
+	for this.empty() {
 		this.cond.Wait()
 	}
 	return this.top()
 }
-func (this *BPriorityQueue)Size()int{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BPriorityQueue) Size() int {
+	this.Lock()
+	defer this.Unlock()
 	return this.size()
 }
-func (this *BPriorityQueue)Empty()bool{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BPriorityQueue) Empty() bool {
+	this.Lock()
+	defer this.Unlock()
 	return this.empty()
 }

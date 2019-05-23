@@ -7,8 +7,8 @@ import (
 
 func TestAll(t *testing.T) {
 
-	pq:= NewPriorityQueue(func(a interface{}, b interface{}) bool {
-		return a.(int)>b.(int)
+	pq := NewPriorityQueue(func(a interface{}, b interface{}) bool {
+		return a.(int) > b.(int)
 	})
 	pq.Push(1)
 	pq.Push(3)

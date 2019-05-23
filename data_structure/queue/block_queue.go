@@ -6,76 +6,69 @@ import (
 
 type BQueue struct {
 	Queue
-	null     sync.Mutex
-	cond     sync.Cond
-	exist    bool
+	sync.Mutex
+	cond sync.Cond
 }
+
 func NewBQueue() *BQueue {
 	sq := BQueue{
-		Queue:*NewQueue(),
+		Queue: *NewQueue(),
 	}
-	sq.null=sync.Mutex{}
-	sq.cond=sync.Cond{L:&sq.null}
+	sq.cond = sync.Cond{L: &sq}
 	return &sq
 }
 
-func (this*BQueue)Push(v interface{}) {
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BQueue) Push(v interface{}) {
+
+	this.Lock()
+	defer this.Unlock()
 	this.Queue.Push(v)
 	this.cond.Signal()
-	this.exist = true
 }
-func (this *BQueue)Pop() {
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
-	for !this.exist {
+func (this *BQueue) Pop() {
+	this.Lock()
+	defer this.Unlock()
+	for this.Queue.Empty() {
 		this.cond.Wait()
 	}
 	this.Queue.Pop()
-	if this.Queue.Size() == 0 {
-		this.exist = false
-	}
 }
-func (this*BQueue)PopFront()interface{} {
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
-	for !this.exist {
+func (this *BQueue) PopAndFront() interface{} {
+	this.Lock()
+	defer this.Unlock()
+	for this.Queue.Empty() {
 		this.cond.Wait()
 	}
-	res := this.Queue.PopFront()
-	if this.Queue.Empty(){
-		this.exist=false
-	}
+	res := this.Queue.PopAndFront()
 	return res
 }
-func (this *BQueue)AsyncPush(v interface{}){
+func (this *BQueue) AsyncPush(v interface{}) {
 	go func() {
 		this.Push(v)
 	}()
 }
-func (this *BQueue)AsyncPop(){
+func (this *BQueue) AsyncPop() {
 	go func() {
 		this.Pop()
 	}()
 }
-func (this*BQueue)Front()interface{} {
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
-	for !this.exist {
+func (this *BQueue) Front() interface{} {
+	this.Lock()
+	defer this.Unlock()
+	for this.Queue.Empty() {
 		this.cond.Wait()
 	}
 	return this.Queue.Front()
 }
 
-func (this*BQueue)Size()int{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BQueue) Size() int {
+	this.Lock()
+	defer this.Unlock()
 	return this.Queue.Size()
 }
 
-func (this *BQueue)Empty()bool{
-	this.cond.L.Lock()
-	defer this.cond.L.Unlock()
+func (this *BQueue) Empty() bool {
+	this.Lock()
+	defer this.Unlock()
 	return this.Queue.Empty()
 }

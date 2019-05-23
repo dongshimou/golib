@@ -1,88 +1,35 @@
 package queue
 
 import (
-	"sync"
+	"github.com/dongshimou/golib/data_structure/list"
 )
 
-type Pipe chan interface{}
-
-const (
-	DefaultPipeSize = 1
-)
-
-type SafeQueue struct {
-	sync.Mutex
-	Data     []interface{}
-	pipePool sync.Pool
+type Queue struct {
+	data *list.List
 }
-
-func New() *SafeQueue {
-	sq := SafeQueue{
-		Data: make([]interface{}, 0, DefaultPipeSize),
-		pipePool: sync.Pool{New: func() interface{} {
-			return make(Pipe, DefaultPipeSize)
-		}},
+func NewQueue()*Queue{
+	q:=&Queue{
+		data: list.New(),
 	}
-	return &sq
+	return q
 }
-
-func (this *SafeQueue) Push(v interface{}) {
-	this.push(v)
+func (this *Queue)Push(v interface{}) {
+	this.data.PushBack(v)
 }
-func (this *SafeQueue) AsyncPush(v interface{}) {
-	pipe := this.pipePool.Get().(Pipe)
-	pipe <- v
-	go func() {
-		defer this.pipePool.Put(pipe)
-		this.push(<-pipe)
-	}()
+func (this *Queue)Pop(){
+	this.data.PopFront()
 }
-func (this *SafeQueue) AsyncPop() Pipe {
-	pipe := make(Pipe, DefaultPipeSize)
-	go func() {
-		pipe <- this.pop
-	}()
-	return pipe
-}
-
-func (this *SafeQueue) Pop() interface{} {
-	res := this.front()
-	this.pop()
+func (this *Queue)PopFront()interface{}{
+	res:=this.Front()
+	this.Pop()
 	return res
 }
-func (this *SafeQueue) Front() interface{} {
-	return this.front()
+func (this* Queue)Front()interface{}{
+	return this.data.Front()
 }
-
-func (this *SafeQueue) Size() int {
-	return this.size()
+func(this*Queue)Size()int{
+	return this.data.Size()
 }
-func (this *SafeQueue) Empty() bool {
-	return this.empty()
-}
-
-func (this *SafeQueue) push(v interface{}) {
-	this.Lock()
-	defer this.Unlock()
-	this.Data = append(this.Data, v)
-}
-func (this *SafeQueue) pop() {
-	this.Lock()
-	defer this.Unlock()
-	this.Data = this.Data[1:]
-}
-func (this *SafeQueue) front() interface{} {
-	this.Lock()
-	defer this.Unlock()
-	return this.Data[len(this.Data)-1]
-}
-func (this *SafeQueue) size() int {
-	this.Lock()
-	defer this.Unlock()
-	return len(this.Data)
-}
-func (this *SafeQueue) empty() bool {
-	this.Lock()
-	defer this.Unlock()
-	return len(this.Data) == 0
+func (this*Queue)Empty()bool{
+	return this.data.Empty()
 }

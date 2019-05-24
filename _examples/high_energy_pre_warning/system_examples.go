@@ -6,7 +6,6 @@ import (
 	"time"
 )
 type Tick struct {
-	high_energy_pre_warning.TickData
 	InstrumentID string
 	Timestamp int64
 	LastPrice float64
@@ -38,7 +37,7 @@ func Test(){
 		"ni0000":    {0.007,0.007},
 		"sn0000":    {0.007,0.007},
 	}
-	curChanMap := map[string]chan *high_energy_pre_warning.TickData{}
+	curChanMap := map[string]chan high_energy_pre_warning.TickData{}
 	pubMsg := func(stream chan *high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
 		for {
 			func() {
@@ -81,8 +80,7 @@ func Test(){
 	tick.TradingDay="2019-05-25"
 	tick.InstrumentID="cu0000"
 
-	curChanMap["cu0000"]<-&tick
-
+	curChanMap["cu0000"]<- &tick
 
 	tick.Timestamp=time.Now().Unix()
 	tick.OpenPrice=40000

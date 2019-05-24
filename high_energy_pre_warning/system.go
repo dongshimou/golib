@@ -29,8 +29,8 @@ type HighEnergyMsg struct {
 
 type HighEnergyPreWarning struct {
 	SegmentTree *segment_tree.SegmentTree
-	InFlowStream chan TickData
-	OutFlowStream chan HighEnergyMsg
+	InFlowStream chan *TickData
+	OutFlowStream chan *HighEnergyMsg
 	Minutes []int//需要查询的最近多少分钟
 	TickTimes     map[int]int64               //几秒更新一次
 	LimitUpRate   float64                     //最高涨幅比例
@@ -96,8 +96,8 @@ func New(config *HighEnergyPreWarningConfig) *HighEnergyPreWarning {
 		TickTimes:     map[int]int64{},
 		pubDown:       map[int]int64{},
 		pubUp:         map[int]int64{},
-		InFlowStream:  make(chan TickData, config.InStreamSize),
-		OutFlowStream: make(chan HighEnergyMsg, config.OutStreamSize),
+		InFlowStream:  make(chan *TickData, config.InStreamSize),
+		OutFlowStream: make(chan *HighEnergyMsg, config.OutStreamSize),
 		initUpDownBase:config.InitUpDownBase,
 		isForce:       config.IsForce,
 	}
@@ -133,7 +133,7 @@ func (this *HighEnergyPreWarning) init(tradingDay string, baseMax, baseMin float
 	this.baseDown = baseMin
 	logger.Debug(this.instrumentID, "start a new High Energy Pre Warning in", this.tradingDay)
 }
-func (this *HighEnergyPreWarning) InitTicks(ticks []TickData) {
+func (this *HighEnergyPreWarning) InitTicks(ticks []*TickData) {
 
 	for i, _ := range ticks {
 		this.process(ticks[i])
@@ -184,7 +184,8 @@ func (this *HighEnergyPreWarning) append(t int64, v interface{}) {
 	this.SegmentTree.Append(v)
 }
 //处理tick数据
-func (this *HighEnergyPreWarning) process(tick TickData) {
+func (this *HighEnergyPreWarning) process(tickData *TickData) {
+	tick:=*tickData
 	if this.tradingDay != tick.GetTradingDay() { //交易日变化,新的一天!
 		this.NewDay(tick.GetTradingDay(), tick.GetOpenPrice())
 	}
@@ -201,9 +202,9 @@ func (this *HighEnergyPreWarning) process(tick TickData) {
 		this.append(tick.GetTimestamp(), tick.GetLastPrice())
 	}
 }
-func (this *HighEnergyPreWarning) pubMsg(tick TickData) {
+func (this *HighEnergyPreWarning) pubMsg(tickData *TickData) {
+	tick:=*tickData
 	for _, minute := range this.Minutes {
-
 		//已经发布过了
 		if this.isPubUp(minute,tick.GetTimestamp())&&this.isPubDown(minute,tick.GetTimestamp()){
 			continue
@@ -227,7 +228,7 @@ func (this *HighEnergyPreWarning) pubMsg(tick TickData) {
 					Timestamp:    tick.GetTimestamp(),
 					UpDown:       Limit_Down,
 				}
-				this.OutFlowStream <- pubData
+				this.OutFlowStream <- &pubData
 				this.setPubDown(minute,tick.GetTimestamp())
 			}
 		}
@@ -245,7 +246,7 @@ func (this *HighEnergyPreWarning) pubMsg(tick TickData) {
 					Timestamp:    tick.GetTimestamp(),
 					UpDown:       Limit_Up,
 				}
-				this.OutFlowStream <- pubData
+				this.OutFlowStream <- &pubData
 				this.setPubUp(minute,tick.GetTimestamp())
 			}
 		}

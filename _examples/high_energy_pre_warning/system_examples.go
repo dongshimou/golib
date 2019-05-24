@@ -26,7 +26,7 @@ func(this*Tick)GetOpenPrice()float64{
 	return this.OpenPrice
 }
 
-func init(){
+func Test(){
 	InstrumentIDs := map[string]struct{
 		UpRate   float64
 		DownRate float64
@@ -38,8 +38,8 @@ func init(){
 		"ni0000":    {0.007,0.007},
 		"sn0000":    {0.007,0.007},
 	}
-	curChanMap := map[string]chan high_energy_pre_warning.TickData{}
-	pubMsg := func(stream chan high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
+	curChanMap := map[string]chan *high_energy_pre_warning.TickData{}
+	pubMsg := func(stream chan *high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
 		for {
 			func() {
 				for {
@@ -81,5 +81,22 @@ func init(){
 	tick.TradingDay="2019-05-25"
 	tick.InstrumentID="cu0000"
 
-	curChanMap["cu0000"]<-tick.TickData
+	curChanMap["cu0000"]<-&tick
+
+
+	tick.Timestamp=time.Now().Unix()
+	tick.OpenPrice=40000
+	tick.LastPrice=50000
+	tick.TradingDay="2019-05-25"
+	tick.InstrumentID="cu0000"
+
+	tick.GetLastPrice()
+	curChanMap["cu0000"]<-&tick
+}
+
+func main(){
+	Test()
+	for{
+		time.Sleep(time.Second)
+	}
 }

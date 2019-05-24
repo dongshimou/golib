@@ -18,11 +18,11 @@ func init() {
 	log.Formatter = formatter
 	log.Level = logrus.DebugLevel
 	log.SetReportCaller(true)
+	log.CallerSkip = 1
 }
 
 func New(server string) {
 	prefix = server
-	log.CallerSkip = 1
 	//entry=log.WithField("prefix",prefix)
 }
 func Debug(args ...interface{}) {

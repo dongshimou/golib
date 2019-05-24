@@ -25,17 +25,17 @@ func(this*Tick)GetOpenPrice()float64{
 	return this.OpenPrice
 }
 
-func Test(){
-	InstrumentIDs := map[string]struct{
+func Test() {
+	InstrumentIDs := map[string]struct {
 		UpRate   float64
 		DownRate float64
 	}{
-		"cu0000":    {0.007,0.007},
-		"al0000":    {0.007,0.007},
-		"pb0000":    {0.007,0.007},
-		"zn0000":    {0.007,0.007},
-		"ni0000":    {0.007,0.007},
-		"sn0000":    {0.007,0.007},
+		"cu0000": {0.007, 0.007},
+		"al0000": {0.007, 0.007},
+		"pb0000": {0.007, 0.007},
+		"zn0000": {0.007, 0.007},
+		"ni0000": {0.007, 0.007},
+		"sn0000": {0.007, 0.007},
 	}
 	curChanMap := map[string]chan high_energy_pre_warning.TickData{}
 	pubMsg := func(stream chan high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
@@ -55,11 +55,11 @@ func Test(){
 		//每个合约创建预警
 		hepwSystem := high_energy_pre_warning.New(
 			&high_energy_pre_warning.HighEnergyPreWarningConfig{
-				InstrumentID:   id,
+				InstrumentID: id,
 				Minutes: []struct {
 					Minute   int
 					ColdTime int
-				}{{30,30}}        , //30分钟预警
+				}{{30, 30}}, //30分钟预警
 				LimitUpRate:    v.UpRate,
 				LimitDownRate:  v.DownRate,
 				InitUpDownBase: nil,
@@ -73,24 +73,37 @@ func Test(){
 		go hepwSystem.Run()
 	}
 
-	start:=time.Now().Unix()
-	tick:=Tick{}
-	tick.Timestamp=start
-	tick.OpenPrice=40000
-	tick.LastPrice=40000
-	tick.TradingDay="2019-05-25"
-	tick.InstrumentID="cu0000"
+	start := time.Now().Unix()
+	{
+		tick := Tick{}
+		tick.Timestamp = start
+		tick.OpenPrice = 40000
+		tick.LastPrice = 40000
+		tick.TradingDay = "2019-05-25"
+		tick.InstrumentID = "cu0000"
 
-	curChanMap["cu0000"]<- &tick
+		curChanMap["cu0000"] <- &tick
+	}
+	{
+		tick := Tick{}
+		tick.Timestamp = start + 100
+		tick.OpenPrice = 40000
+		tick.LastPrice = 50000
+		tick.TradingDay = "2019-05-25"
+		tick.InstrumentID = "cu0000"
 
-	tick.Timestamp=start+1
-	tick.OpenPrice=40000
-	tick.LastPrice=50000
-	tick.TradingDay="2019-05-25"
-	tick.InstrumentID="cu0000"
+		curChanMap["cu0000"] <- &tick
+	}
+	{
+		tick := Tick{}
+		tick.Timestamp = start + 200
+		tick.OpenPrice = 40000
+		tick.LastPrice = 45000
+		tick.TradingDay = "2019-05-25"
+		tick.InstrumentID = "cu0000"
 
-	tick.GetLastPrice()
-	curChanMap["cu0000"]<-&tick
+		curChanMap["cu0000"] <- &tick
+	}
 }
 
 func main(){

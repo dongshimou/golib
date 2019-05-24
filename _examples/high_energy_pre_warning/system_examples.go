@@ -38,7 +38,7 @@ func Test(){
 		"sn0000":    {0.007,0.007},
 	}
 	curChanMap := map[string]chan high_energy_pre_warning.TickData{}
-	pubMsg := func(stream chan *high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
+	pubMsg := func(stream chan high_energy_pre_warning.HighEnergyMsg) { //发布高能预警
 		for {
 			func() {
 				for {
@@ -73,8 +73,9 @@ func Test(){
 		go hepwSystem.Run()
 	}
 
+	start:=time.Now().Unix()
 	tick:=Tick{}
-	tick.Timestamp=time.Now().Unix()
+	tick.Timestamp=start
 	tick.OpenPrice=40000
 	tick.LastPrice=40000
 	tick.TradingDay="2019-05-25"
@@ -82,7 +83,7 @@ func Test(){
 
 	curChanMap["cu0000"]<- &tick
 
-	tick.Timestamp=time.Now().Unix()
+	tick.Timestamp=start+1
 	tick.OpenPrice=40000
 	tick.LastPrice=50000
 	tick.TradingDay="2019-05-25"
